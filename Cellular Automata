@@ -1,0 +1,65 @@
+###################################################################################################################
+##Here we import the packages
+import numpy as np
+import matplotlib.pyplot as plt
+###################################################################################################################
+
+###################################################################################################################
+#Here we store the fundamental values to implement the cellular automata
+class cel_aut():
+    def __init__(self, size_str = 3, size_cel = 55):
+        self.rule = 0 #the standard rule to be followed is zero
+        self.size_string = size_str #this parameter sets how long the initial string is
+        self.size_cel = size_cel #here we define the size of the automaton neighborhood 
+        self.configs = 2**size_str #the number of possible configurations
+###################################################################################################################
+#This function defines the rule associated with a given number from 0 to 255
+    def out_patt(self):
+        output_pattern = [int(x) for x in np.binary_repr(self.rule, width = 8)]
+        return output_pattern
+###################################################################################################################   
+#This function generates an 8 bit representation for numbers from 0 to 7
+    def inp_patt(self):
+        rows = 2**self.size_string
+        input_pattern = np.zeros((rows, self.size_string))
+        for i in np.arange(rows):
+            input_pattern[i, :] = [int(x) for x in np.binary_repr(rows - 1 - i, width = self.size_string)]
+        return input_pattern
+###################################################################################################################
+#Here the evolution rule is applied
+    def data_cel_aut(self):
+        inp_num = self.inp_patt()
+        out_num = self.out_patt()
+        rows = int(self.size_cel/2) + 1
+
+        fig = np.zeros([rows, self.size_cel + 2])
+        fig[0, int(self.size_cel/2) + 1] = 1
+
+        for i in np.arange(0, rows - 1):
+            for j in np.arange(0, self.size_cel):
+                for k in range(self.configs):
+                    if np.array_equal(inp_num[k, :], fig[i, j:j+3]):
+                        fig[i + 1, j + 1] = out_num[k]
+                    else:
+                        pass       
+        return fig
+###################################################################################################################        
+
+
+
+###################################################################################################################
+cel1 = cel_aut()
+while cel1.rule < 256:
+    try:
+        rule_inp = int(input('what rule should we use (type a number greater than 255 to exit)? '))
+        if rule_inp > 255:
+            print('shutting down...')
+            break
+        else:
+            cel1.rule = rule_inp
+            plt.figure(figsize=(17,17))
+            plt.spy(cel1.data_cel_aut())
+            plt.show()
+    except:
+        print('sorry, something went wrong!')
+###################################################################################################################
